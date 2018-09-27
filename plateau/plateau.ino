@@ -1,3 +1,5 @@
+const int NB_PLAYERS = 1;
+
 int randNumber;
 
 byte colors[4][3] = {   {HIGH, LOW, LOW}, //RGB
@@ -24,6 +26,7 @@ bool controllerState[4];
 int pinFbGoodPlace[4] = {14 , 15, 16, 17};
 int pinFbControllerOK[4] = {18, 19, 20, 21}; // LED PILIER ?
 
+int pinPiezo = 22;
 
 void setup()
 {
@@ -37,17 +40,14 @@ void setup()
   Serial3.begin(9600);
 
   randomSeed(analogRead(0));
-
-  /*
-    pinMode(red, OUTPUT);
-    pinMode(blue, OUTPUT);
-    pinMode(green, OUTPUT);*/
 }
 
 void loop()
 {
   if (!gameRunning) // si game pas lancée : init partie
   {
+    StartGameSong();
+    delay(1000);
     gameRunning = true;
     InitGame();
   }
@@ -73,21 +73,22 @@ void loop()
     // Test final :
     // 1 - Couleur au bon endroit ?
     // 2 - Controller 'fini' ?
-    bool won = true;
+    int nbrWon = 0;
+    
     for (int i = 0; i < 4; i++)
     {
-      if (controllerIds[i] != tmp[i] // tmp contient la suite
-          || !controllerState[i])
+      if (controllerIds[i] == tmp[i] // tmp contient la suite
+          && controllerState[i])
       {
-        // pas gagné !
-        won = false;
-        break;
+        // manette gagné !
+        nbrWon++;
       }
     }
 
-    if (won)
+    if (nbrWon >= NB_PLAYERS)
     {
       // feedback tout ça
+      VictorySong();
       delay(2000);
       gameRunning = false;
     }
@@ -134,15 +135,77 @@ void Colorize()
   }
 }
 
-bool ManageController(int id, int val)
+void ManageController(int id, int val)
 {
   // SET ID
   controllerIds[id] = val & 0b00000011;
 
   // SET STATE
   bool successCtrl = (val & 0b10000000) != 0;
+
+  if(successCtrl && !controllerState)
+    GoodPlaceSong();
+  
   controllerState[id] = successCtrl;
   
   digitalWrite(pinFbControllerOK[id], successCtrl ? HIGH : LOW);
   digitalWrite(pinFbGoodPlace[id], controllerIds[id] == tmp[id] ? HIGH : LOW);
+}
+
+void GoodPlaceSong()
+{
+  tone(pinPiezo, 1046.5f, 250);
+  delay(250);
+  
+  tone(pinPiezo, 1397, 250);
+  delay(250);
+}
+
+void VictorySong()
+{ 
+  tone(pinPiezo, 587 , 250); // D4
+  delay(250);
+  
+  tone(pinPiezo, 740 , 250); // F#4
+  delay(250);
+  
+  tone(pinPiezo, 988 , 500); // B4
+  delay(500);
+  
+  tone(pinPiezo, 1175, 125); // D5
+  delay(125);
+  
+  tone(pinPiezo, 988 , 250); // B4
+  delay(250);
+  
+  tone(pinPiezo, 1175, 125); // D5
+  delay(125);
+  
+  tone(pinPiezo, 880 , 250); // A4
+  delay(250);
+  
+  tone(pinPiezo, 1175, 125); // D5
+  delay(125);
+  
+  tone(pinPiezo, 988 , 375); // B4
+  delay(375);
+  
+}
+
+void StartGameSong()
+{
+  tone(pinPiezo, 523); // C4
+  delay(250);
+
+  tone(pinPiezo, 440); // A3
+  delay(250);
+  
+  tone(pinPiezo, 587); // D4
+  delay(62);
+  
+  tone(pinPiezo, 698); // F4
+  delay(62);
+
+  tone(pinPiezo, 587, 250); // D4
+  delay(250);
 }
