@@ -1,7 +1,4 @@
-#include <SoftwareSerial.h>
 #include "LiquidCrystal.h"
-
-SoftwareSerial arduinoJaune(28, 29); // RX, TX
 
 LiquidCrystal lcd(8,9,4,5,6,7);
 
@@ -20,9 +17,6 @@ void setup() {
   Serial1.begin(9600);
   Serial2.begin(9600);
   Serial3.begin(9600);
-  //arduinoVert.begin(4800);
-  //arduinoBleu.begin(4800);
-  //arduinoJaune.begin(4800);
 
   lcd.setCursor(0,0);
   lcd.print("S1: ");
