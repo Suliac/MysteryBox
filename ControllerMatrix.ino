@@ -47,12 +47,9 @@ void loop() {
   buttonMatrix[2][1] = digitalRead(3);
   buttonMatrix[2][2] = digitalRead(13);
 
-  
-  Serial.print('B'); // RGBW
-  Serial.print('N'); // Y/N
-  Serial.print('7'); // Diff
-  Serial.print('\0');
-
+  unsigned int id   = 0b00000011;
+  unsigned int vic  = 0b10000000;
+  Serial.write((id | vic));
   
   for(int col = 7; col <= 9; col++) {
     digitalWrite(10, buttonMatrix[col-7][0] ? HIGH : LOW);
