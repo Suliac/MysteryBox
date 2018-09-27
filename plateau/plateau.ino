@@ -25,8 +25,15 @@ bool controllerState[4];
 
 void setup()
 {
-  Serial.begin(9600);
-
+  Serial.begin(57600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+  
+  Serial1.begin(9600);
+  Serial2.begin(9600);
+  Serial3.begin(9600);
+  
   randomSeed(analogRead(0));
 
   /*
@@ -45,18 +52,54 @@ void loop()
   else
   {
     // Sinon : test si réussite
-    if(Serial.available())
-    {
-      Serial.readBytes(controllerFeedback, 3);
-    
-    // récup état : gagné ou pas        
-      controllerState[controllerFeedback[0]] = controllerFeedback[1] == 'O';
+    if (Serial.available()) {
+      int val = Serial1.read();
       
-      // récup du score
-      //controllerScore[controllerFeedback[0]] = controllerFeedback[2];
+      // Get ID
+      controllerIds[0] = val & 0b00000011;
+       
+      if((val & 0b10000000) != 0)
+        controllerState[0] = true;
+      else
+        controllerIds[0] = false;
+    } 
+
+    if (Serial1.available()) {
+      int val = Serial1.read();
+      
+      // Get ID
+      controllerIds[1] = val & 0b00000011;
+       
+      if((val & 0b10000000) != 0)
+        controllerState[1] = true;
+      else
+        controllerIds[1] = false;
+    } 
+
+    if (Serial2.available()) {
+      int val = Serial2.read();
+      
+      // Get ID
+      controllerIds[2] = val & 0b00000011;
+       
+      if((val & 0b10000000) != 0)
+        controllerState[2] = true;
+      else
+        controllerIds[2] = false;
     }
+
     
-    // TODO : 4 fois (pour chaque Sérial)
+    if (Serial3.available()) {
+      int val = Serial3.read();
+      
+      // Get ID
+      controllerIds[3] = val & 0b00000011;
+       
+      if((val & 0b10000000) != 0)
+        controllerState[3] = true;
+      else
+        controllerIds[3] = false;
+    }
     
     // Test final :
     // 1 - Couleur au bon endroit ?
@@ -84,7 +127,7 @@ void loop()
 
 void InitGame()
 {
-  FillTab();
+    FillTab();
     Colorize();
 }
 
